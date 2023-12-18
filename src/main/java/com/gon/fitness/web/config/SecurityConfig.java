@@ -6,9 +6,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -22,6 +20,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                .mvcMatchers(HttpMethod.GET, "/profile/*").permitAll()
                .anyRequest().authenticated();
 
+       http.formLogin()
+               .loginPage("/login").permitAll();
+
+       http.logout()
+               .logoutSuccessUrl("/");
 
 
     }
@@ -29,9 +32,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring()
+                .mvcMatchers("/node_modules/**","/favicon.ico")
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
-                .requestMatchers(new AntPathRequestMatcher("/favicon.ico"))
-                .requestMatchers(new AntPathRequestMatcher("/node_modules"))
         ;
     }
+
+
+
 }

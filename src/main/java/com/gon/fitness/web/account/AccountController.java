@@ -12,10 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
@@ -70,18 +67,39 @@ public class AccountController {
             return "account/checked-email";
         }
 
-        account.verifiedEmail();
-        accountService.login(account);
+        //data가 변경해야하면 -> service에 위임해서 관리해야한다.
+        accountService.completeSignUp(account);
+
         model.addAttribute("numberOfUser",accountRepository.count());
         model.addAttribute("nickname",account.getNickname());
         return "account/checked-email";
     }
 
+    @GetMapping("/profile/{nickname}")
+    public String viewProfile(@PathVariable String nickname, Model model,
+                              @CurrentUser Account account) {
+        //nickname == account라면 조작할 수 있는 권한
+        Account byNickname = accountRepository.findByNickname(nickname);
+        if (byNickname == null) {
+            throw new IllegalArgumentException(nickname+"이 없습니다.");
+        }
 
+        model.addAttribute(byNickname);
+        model.addAttribute("isOwner",byNickname.equals(account));
+        return "account/profile";
+
+    }
 
 
 
 }
+
+
+
+
+
+
+
 
 
 
