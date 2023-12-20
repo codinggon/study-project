@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head th:replace="fragments.html :: header"></head>
+
+<body>
+
+<th:block th:replace="fragments.html :: nav-main"></th:block>
+
+<div class="container">
+
+    <div class="row mt-5 justify-content-center">
+<!--            메뉴-->
+        <div th:replace="fragments.html :: settings-menu ('tags')"></div>
+
+        <div class="col-8">
+
+            <h3>관심있는 스터디 주제</h3>
+            <br>
+            <input name='tags--outside' class='tagify-outside' placeholder='write tags to add below'
+                   th:value="${#strings.listJoin(tagList,',')}">
+
+
+        </div>
+    </div>
+
+</div>
+
+
+<footer th:replace="fragments.html :: footer"></footer>
+
+<script th:replace="fragments.html :: ajax-csrf-header"></script>
+<script type="application/javascript" th:inline="javascript">
+
+    let whitelistToObject = JSON.parse([[${whitelist}]]);
+
+    console.log('whitelistToObject',whitelistToObject);
+
+    var input = document.querySelector('input[name=tags--outside]')
+    // init Tagify script on the above inputs
+    var tagify = new Tagify(input, {
+        whitelist: whitelistToObject,
+        dropdown: {
+            position: "input",
+            enabled : 0 // always opens dropdown when input gets focus
+        }
+    });
+
+    function ajaxCall(callType) {
+        return function (e) {
+            let addValue = e.detail.data.value;
+
+            $.ajax({
+                type: 'post',
+                url: '/settings/tags/'  + callType,
+                async: true,
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                dataType: 'json',
+                data: JSON.stringify({
+                    'title': addValue
+                }),
+                success: function (result) {
+                    console.log('success', result);
+                },
+                error: function (error) {
+                    console.log('error', error);
+                }
+            });
+
+        };
+    }
+
+    tagify.on('add',ajaxCall('add'));
+    tagify.on('remove',ajaxCall('remove'));
+
+
+
+</script>
+
+</body>
+</html>

@@ -1,9 +1,13 @@
 package com.gon.fitness.domain.account;
 
+import com.gon.fitness.domain.tag.Tag;
+import com.gon.fitness.domain.zone.Zone;
+import com.gon.fitness.web.account.security.UserAccount;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -58,6 +62,12 @@ public class Account {
 
     private boolean studyUpdatedByWeb = true;
 
+    @ManyToMany
+    private Set<Tag> tags;
+
+    @ManyToMany
+    private Set<Zone> zones;
+
 
     public void generateEmailCheckToken() {
         this.emailCheckToken = UUID.randomUUID().toString();
@@ -74,6 +84,18 @@ public class Account {
         this.joinedAt = LocalDateTime.now();
     }
 
+
+    public void addTags(Tag tag) {
+        this.getTags().add(tag);
+    }
+
+    public void addZones(Zone zone) {
+        this.getZones().add(zone);
+    }
+
+    public void removeZones(Zone zone) {
+        this.getZones().remove(zone);
+    }
 
 
 }
